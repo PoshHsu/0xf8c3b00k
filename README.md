@@ -1,3 +1,3 @@
 # 0xf8c3b00k
 
-Facebook client for hackers.
+A Facebook client for hackers.
