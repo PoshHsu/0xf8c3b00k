@@ -1,0 +1,39 @@
+<html>
+<script language="javascript">
+  
+var hashParams = function() {
+  if (location.href.search('#') < 0) return {};
+  
+  var hash_str = location.href.substr(location.href.search('#') + 1);
+  var lines = hash_str.split('&');
+  var result = {};
+  for (key in lines) {
+    var v = lines[key].split('=');
+    var key = decodeURIComponent(v[0]);
+    var val = decodeURIComponent(v[1]);
+    result[key] = val;
+  }
+  return result;
+};
+
+var run = function() {
+  var params = hashParams();
+  if (params.hasOwnProperty('access_token')) {
+    // Got token
+    location.href = '/'
+      + '?access_token=' + params.access_token
+      + '&expires_in=' + params.expires_in;
+  } else {
+    // Not have the token.
+    location.href = 'https://www.facebook.com/dialog/oauth'
+      + '?client_id=' + params.client_id
+      + '&redirect_uri=' + encodeURIComponent(location.href.split('#', 1)[0])
+      + '&scope='
+      + '&response_type=token'
+  }
+};
+
+run();
+
+</script>
+</html>
