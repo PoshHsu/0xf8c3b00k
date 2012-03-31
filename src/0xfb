@@ -1,0 +1,5 @@
+#! /bin/sh
+
+# run directly if user is not put this module in node_modules of node.
+
+node index.js $*

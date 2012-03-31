@@ -1,18 +1,9 @@
 var http = require('http');
 var url = require('url');
+var CONFIG = require('./config.js');
 
-var CONFIG = {
-
-  // Path name that can be opened by browser.
-  'fb_authclient_pathname' : '/authclient',
-
-  // Server side path to the file that contains html data to request a fb
-  // token.
-  'fb_authclient_servpath' : './oauth_page.html',
-
-  // Facebook app id.
-  'fb_client_id'           : '370477596318204',
-};
+var success_cb;
+var failure_cb;
 
 var httpServer = http.createServer(
   function(request, response) {
@@ -33,10 +24,10 @@ var httpServer = http.createServer(
                && query.hasOwnProperty('expires_in')) {
       // Client returns data to us.
       // *** HERE WE GOT ACCESS TOKEN ***
-      console.log('access_token: ' + query['access_token']);
-      console.log('expires_in: ' + query['expires_in']);
       response.end();
       httpServer.close();
+
+      success_cb(query['access_token'], query['expires_in']);
     } else {
       // Wrong case, redirect to login path.
       response.statusCode = 301;
@@ -46,8 +37,15 @@ var httpServer = http.createServer(
   }
 );
 
-httpServer.listen(40680);
+exports.getTokenWithUsersHelp = function(success_callback,
+                                         failure_callback) {
+  success_cb = success_callback;
+  failure_cb = failure_callback;
 
-console.log("Link to: ");
-console.log("http://localhost:40680" + CONFIG.fb_authclient_pathname
-            + "#client_id=" + CONFIG.fb_client_id);
+  httpServer.listen(40680);
+
+  // Inform user to open browser.
+  console.log("Use browser to open: ");
+  console.log("  http://localhost:40680" + CONFIG.fb_authclient_pathname
+              + "#client_id=" + CONFIG.fb_client_id);
+}
