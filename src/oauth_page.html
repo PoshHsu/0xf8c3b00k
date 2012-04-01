@@ -28,7 +28,7 @@ var run = function() {
     location.href = 'https://www.facebook.com/dialog/oauth'
       + '?client_id=' + params.client_id
       + '&redirect_uri=' + encodeURIComponent(location.href.split('#', 1)[0])
-      + '&scope='
+      + '&scope=' + params.scope
       + '&response_type=token'
   }
 };

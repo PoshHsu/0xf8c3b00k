@@ -1,6 +1,6 @@
 var http = require('http');
 var url = require('url');
-var CONFIG = require('./config.js');
+var CONFIG = require('./config.js').app_config();
 
 var success_cb;
 var failure_cb;
@@ -28,17 +28,24 @@ var httpServer = http.createServer(
       httpServer.close();
 
       success_cb(query['access_token'], query['expires_in']);
-    } else {
-      // Wrong case, redirect to login path.
+    } else if (req_info.pathname == "/") {
+      // Root, redirect to auth_page.
       response.statusCode = 301;
-      response.setHeader('Location', CONFIG['fb_authclient_servpath']);
+      response.setHeader('Location',
+                         CONFIG['fb_authclient_pathname']
+                         + "#client_id=" + CONFIG['fb_client_id']
+                         + "&scope=" + CONFIG['fb_auth_scope']);
+      response.end();
+    } else {
+      // Error, return 404
+      response.statusCode = 404;
       response.end();
     }
   }
 );
 
-exports.getTokenWithUsersHelp = function(success_callback,
-                                         failure_callback) {
+var getTokenWithUsersHelp = function(success_callback,
+                                     failure_callback) {
   success_cb = success_callback;
   failure_cb = failure_callback;
 
@@ -46,6 +53,20 @@ exports.getTokenWithUsersHelp = function(success_callback,
 
   // Inform user to open browser.
   console.log("Use browser to open: ");
-  console.log("  http://localhost:40680" + CONFIG.fb_authclient_pathname
-              + "#client_id=" + CONFIG.fb_client_id);
+  console.log("  http://localhost:40680/");
 }
+
+exports.getAuthToken = function(success_callback,
+                                failure_callback) {
+  var USER_CONFIG = require('./config.js').user_config();
+  if (USER_CONFIG.hasOwnProperty('fb_auth_token')) {
+    success_callback(USER_CONFIG['fb_auth_token'], 0);
+  } else {
+    getTokenWithUsersHelp(function(access_token, expires_in) { // When success.
+      USER_CONFIG['fb_auth_token'] = access_token;
+      USER_CONFIG['fb_auth_token_expire'] = 
+        Date.now() / 1000 + expires_in;
+      success_callback(access_token, expires_in); // To caller's callback
+    }, failure_callback);
+  }
+};
