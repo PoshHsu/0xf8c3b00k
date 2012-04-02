@@ -19,7 +19,18 @@ var app_cfg = {
   'fb_auth_scope' : '',
 
   // Default configure file name
-  'default_config_file' : HOME() + '/.0xfb' 
+  'default_config_file' : HOME() + '/.0xfb',
+
+  // Available program options
+  // 'option name' : (true if it has a value)
+  // Ex: 
+  // If you expect user to type "-p 60"
+  // you should set 
+  //   '-p' : true
+  'program_options' : {
+    '--website' : true,  // Example
+    '--silence' : false
+  }
 
 };
 

@@ -59,14 +59,25 @@ var getTokenWithUsersHelp = function(success_callback,
 exports.getAuthToken = function(success_callback,
                                 failure_callback) {
   var USER_CONFIG = require('./config.js').user_config();
-  if (USER_CONFIG.hasOwnProperty('fb_auth_token')) {
-    success_callback(USER_CONFIG['fb_auth_token'], 0);
+
+  if (USER_CONFIG.hasOwnProperty('fb_auth_token')
+      && USER_CONFIG['fb_auth_token_expire'] > Date.now()/1000) {
+    // Success callback
+    success_callback(USER_CONFIG['fb_auth_token'],
+                     USER_CONFIG['fb_auth_token_expire']);
   } else {
-    getTokenWithUsersHelp(function(access_token, expires_in) { // When success.
-      USER_CONFIG['fb_auth_token'] = access_token;
-      USER_CONFIG['fb_auth_token_expire'] = 
-        Date.now() / 1000 + expires_in;
-      success_callback(access_token, expires_in); // To caller's callback
-    }, failure_callback);
+    getTokenWithUsersHelp(
+      function(access_token, expires_in) { // When success.
+
+        // Record to user config.
+        USER_CONFIG['fb_auth_token'] = access_token;
+        USER_CONFIG['fb_auth_token_expire'] = 
+          parseInt(Date.now()/1000) + parseInt(expires_in);
+
+        // Success callback
+        success_callback(USER_CONFIG['fb_auth_token'],
+                         USER_CONFIG['fb_auth_token_expire']);
+      },
+      failure_callback);
   }
 };
