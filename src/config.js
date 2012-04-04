@@ -16,7 +16,7 @@ var app_cfg = {
   // Facebook app id.
   'fb_client_id' : '370477596318204',
 
-  'fb_auth_scope' : '',
+  'fb_auth_scope' : 'user_photos,publish_stream',
 
   // Default configure file name
   'default_config_file' : HOME() + '/.0xfb',
