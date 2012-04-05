@@ -3,6 +3,10 @@ var http = require('http');
 var crypto = require('crypto');
 var USERCONFIG = require('./config.js').user_config();
 
+var fieldMapper = {
+  'message' : 'message'
+};
+
 // Make a multipart boundary.
 var makeBoundary = function() {
   var hash = crypto.createHash('sha1');
@@ -10,9 +14,18 @@ var makeBoundary = function() {
   return '----' + hash.digest('base64');
 }
 
-var uploadStdin = function(albumId) {
+var makePostData = function(cfg) {
+  var kvp = [];
+  if (cfg.hasOwnProperty('message')) {
+    kvp.push('message='+encodeURIComponent(cfg['message']));
+  }
+  return kvp.join('&');
+}
 
-  var uploadPath = (albumId === undefined) ? '/me/photos' : '/'+albumId+'/photos';
+var uploadStdin = function(config) {
+
+  var uploadPath = !config.hasOwnProperty('albumId') ?
+    '/me/photos' : '/' + config['albumId'] + '/photos';
 
   var multipartBoundary = makeBoundary();
 
@@ -54,9 +67,20 @@ var uploadStdin = function(albumId) {
     });
   });
 
+  // Send data section.
+  Object.keys(config).forEach(function(v) {
+    if (fieldMapper.hasOwnProperty(v)) {
+      req.write('--' + multipartBoundary + '\r\n');
+      req.write('Content-Disposition: form-data; name="' + fieldMapper[v] + '"\r\n');
+      req.write('\r\n');
+      req.write(config[v]);
+      req.write('\r\n');
+    }
+  });
+
   // Here we start to redirect data to server.
   req.write('--' + multipartBoundary + '\r\n');
-  req.write('Content-Disposition: form-data; name="picture"; filename="1.jpg"\r\n');
+  req.write('Content-Disposition: form-data; name="image"; filename="1.jpg"\r\n');
   req.write('Content-Type: image/jpeg\r\n');
   req.write('\r\n');
 
@@ -72,5 +96,37 @@ var uploadStdin = function(albumId) {
 };
 
 exports.run = function(progOpt, cmdArgs) {
-  uploadStdin();
+  var expecting = 'key';
+  var key = ''
+  var parsed = {};
+  for (var i = 0; i < cmdArgs.length; ++i) {
+    if (expecting == 'key') {
+      expecting = 'value';
+      key = cmdArgs[i];
+    } else {
+      // If this key expects value.
+      if ((key == '--albumId')
+          || (key == '--msg')
+          || (key == '-m')) {
+        parsed[key] = cmdArgs[i];
+        expecting = 'key';
+      } else {
+        parsed[key] = '';
+        key = cmdArgs[i];
+      }
+    }
+  }
+
+  var cfg = {};
+  Object.keys(parsed).forEach(function(v) {
+    if (v == '--album') {
+      cfg['albumId'] = parsed[v];
+    } else if (v == '--msg' || v == '-m') {
+      cfg['message'] = parsed[v];
+    }
+  });
+
+  console.log(JSON.stringify(cfg));
+
+  uploadStdin(cfg);
 }

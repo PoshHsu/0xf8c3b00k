@@ -34,7 +34,7 @@ var httpServer = http.createServer(
       response.setHeader('Location',
                          CONFIG['fb_authclient_pathname']
                          + "#client_id=" + CONFIG['fb_client_id']
-                         + "&scope=" + CONFIG['fb_auth_scope']);
+                         + "&scope=" + CONFIG['fb_auth_scope'].join(','));
       response.end();
     } else {
       // Error, return 404

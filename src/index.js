@@ -11,7 +11,8 @@ var CONFIG = require('./config.js').app_config();
 // command argument. Move to ./config.js ?
 var progCommand = {
   // Update photo
-  'uploadphoto' : './upload_photo.js'
+  'uploadphoto' : './upload_photo.js',
+  'album' : './album.js'
 };
 
 // It is a chance for program to make global setting before and command
