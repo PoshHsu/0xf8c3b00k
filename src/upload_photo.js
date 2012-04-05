@@ -126,7 +126,5 @@ exports.run = function(progOpt, cmdArgs) {
     }
   });
 
-  console.log(JSON.stringify(cfg));
-
   uploadStdin(cfg);
 }

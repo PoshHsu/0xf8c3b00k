@@ -48,9 +48,8 @@ var initRun = function() {
 // *** Start with fetching access token ***
 var fbOauthClient = require('./fb_oauth_client.js');
 fbOauthClient.getAuthToken(function(access_token, expires) {
-  // Debug !!
-  console.log(" Access token: %s", access_token);
-  console.log(" Expire Time: %d, now: %d", expires, parseInt(Date.now()/1000));
+// console.log(" Access token: %s", access_token);
+// console.log(" Expire Time: %d, now: %d", expires, parseInt(Date.now()/1000));
 
   initRun();
 });
