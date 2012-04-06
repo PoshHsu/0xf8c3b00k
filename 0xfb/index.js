@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 // Command format:
 // ./0xfb [Program option] <Command> [Command argument]
 
